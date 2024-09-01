@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
+import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/App.css';
 
@@ -10,96 +8,28 @@ import SearchBar from './components/SearchBar';
 import CreatePost from './components/CreatePost';
 import UpdatePost from './components/UpdatePost';
 
-const url = "https://jsonplaceholder.typicode.com/posts";
+import { usePosts } from './hooks/usePosts';
+import { usePostHandlers } from './hooks/usePostHandlers';
 
 const App = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [actionType, setActionType] = useState('');
-  const [currentPost, setCurrentPost] = useState({
-    userId: '',
-    id: '',
-    title: '',
-    body: ''
-  });
-  const [searchId, setSearchId] = useState('');
+  const {
+    filteredData,
+    searchId,
+    handleSearchChange,
+    fetchPosts
+  } = usePosts();
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  useEffect(() => {
-    if (searchId) {
-      const filtered = data.filter(post => post.id === parseInt(searchId, 10));
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(data);
-    }
-  }, [searchId, data]);
-
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get(url);
-      setData(response.data);
-      setFilteredData(response.data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  };
-
-  const toggleModal = () => {
-    setModalOpen(!modalOpen);
-  };
-
-  const handleCreatePost = async (post) => {
-    try {
-      await axios.post(url, post);
-      toggleModal();
-      fetchPosts();
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
-  const handleUpdatePost = async (post) => {
-    try {
-      await axios.put(`${url}/${post.id}`, post);
-      toggleModal();
-      fetchPosts();
-    } catch (error) {
-      console.error("Error updating post:", error);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentPost({
-      ...currentPost,
-      [name]: value
-    });
-  };
-
-  const handleEditClick = (post) => {
-    setActionType('update');
-    setCurrentPost(post);
-    toggleModal();
-  };
-
-  const handleAddClick = () => {
-    setActionType('create');
-    setCurrentPost({
-      userId: '',
-      id: data.length + 1,
-      title: '',
-      body: ''
-    });
-    toggleModal();
-  };
-
-  const handleSearchChange = (value) => {
-    setSearchId(value);
-  };
+  const {
+    currentPost,
+    actionType,
+    modalOpen,
+    toggleModal,
+    handleCreatePost,
+    handleUpdatePost,
+    handleChange,
+    handleEditClick,
+    handleAddClick
+  } = usePostHandlers(fetchPosts);
 
   return (
     <div>
