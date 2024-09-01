@@ -55,7 +55,7 @@ export const usePostHandlers = (fetchPosts) => {
     setActionType('create');
     setCurrentPost({
       userId: '',
-      id: Date.now(), // Use a temporary ID for new posts
+      id: Date.now(),
       title: '',
       body: ''
     });
